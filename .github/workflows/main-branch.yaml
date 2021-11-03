@@ -26,7 +26,7 @@ jobs:
         echo "Log Level: ${{ github.event.inputs.logLevel }}"
 
   buildx:
-    name: Build and push
+    name: Buildx
     runs-on: ubuntu-latest
     steps:
       -

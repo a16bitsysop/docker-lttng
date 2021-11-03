@@ -4,7 +4,7 @@ ENV NME builder
 ENV FULL "builder builder"
 ENV EMAIL "build@build"
 
-RUN apk add --no-cache -u alpine-sdk pax-utils atools git sudo gdb findutils
+RUN apk add --no-cache -u alpine-conf alpine-sdk pax-utils atools git sudo gdb findutils
 
 # setup build user
 RUN adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty \
