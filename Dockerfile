@@ -28,8 +28,10 @@ ENV NME builder
 COPY just-build.sh /usr/local/bin/
 
 WORKDIR /tmp
-COPY lttng-ust ./
+COPY --chown=${NME}:${NME} lttng-ust ./
 
+RUN apk update
+USER ${NME}
 RUN just-build.sh
 
 FROM build-base as build-tools
@@ -43,6 +45,8 @@ RUN ls -lah /tmp/packages
 RUN echo /tmp/packages >> /etc/apk/repositories
 
 WORKDIR /tmp
-COPY lttng-tools ./
+COPY --chown=${NME}:${NME} lttng-tools ./
 
+RUN apk update
+USER ${NME}
 RUN just-build.sh

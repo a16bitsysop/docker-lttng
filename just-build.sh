@@ -9,12 +9,12 @@ then
   exit 2
 fi
 
-apk update
-
-chown -R "$NME":"$NME" ./*
 echo "Building ..."
 echo "Arch is: $(uname -m)"
-su -c "cd /tmp && abuild checksum && abuild -A && abuild -r" - ${NME}
+cd /tmp
+abuild checksum
+abuild -A
+abuild -r
 
 APKS=$(find /home/"$NME"/packages -name APKINDEX.tar.gz | wc -l)
 if [ "$APKS" -lt 1 ]
