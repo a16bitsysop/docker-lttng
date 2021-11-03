@@ -1,4 +1,5 @@
 #!/bin/sh
+
 # called inside aport folder
 NME="builder"
 
@@ -7,16 +8,6 @@ then
   >&2 echo "No APKBUILD file to build"
   exit 2
 fi
-
-echo "Setting up build environment..."
-apk add --update-cache --upgrade --virtual .aport-deps alpine-sdk
-#apk upgrade -a
-#setup-apkcache /var/cache/apk
-
-#adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty
-
-#echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME}
-#echo "${NME} ALL=NOPASSWD : ALL" >> /etc/sudoers.d/${NME}
 
 chown -R "$NME":"$NME" ./*
 echo "Building ..."
