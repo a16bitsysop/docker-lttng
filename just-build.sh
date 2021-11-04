@@ -16,12 +16,14 @@ abuild checksum
 abuild -A
 abuild -rK
 
-APKS=$(find /tmp/packages -name APKINDEX.tar.gz | wc -l)
+APKS=$(find /home/"$NME"/packages -name APKINDEX.tar.gz | wc -l)
 if [ "$APKS" -lt 1 ]
 then
   echo "no apks built, exiting"
   exit 1
 fi
 
-find ./ -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
--execdir ls -lah {} \;
+echo "Copying Packages"
+cd /tmp || exit 1
+mkdir -p packages/"$(uname -m)"
+cp -a /home/"$NME"/packages/* packages/"$(uname -m)"
