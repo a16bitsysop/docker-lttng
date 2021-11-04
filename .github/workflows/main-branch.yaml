@@ -47,6 +47,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - 
+        name: Get Timestamp
+        run: echo "timestamp=$(date '+%Y%m%d_%H%M%S')" >> $GITHUB_ENV
       -
         name: Build and push
         uses: docker/build-push-action@v2
