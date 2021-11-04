@@ -1,4 +1,4 @@
-FROM alpine:edge as build-base
+FROM alpine:edge AS buildbase
 
 ENV NME builder
 ENV FULL "builder builder"
@@ -8,7 +8,7 @@ RUN apk add --no-cache -u alpine-conf alpine-sdk pax-utils atools git sudo gdb f
 
 # setup build user
 RUN adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty \
-&& mkdir /home/${NME}/packages && chown ${NME}:${NME} /home/${NME}/packages \
+&& mkdir /tmp/packages && chown ${NME}:${NME} /tmp/packages \
 && mkdir -p /var/cache/distfiles \
 && chgrp abuild /var/cache/distfiles \
 && chmod g+w /var/cache/distfiles
@@ -19,10 +19,11 @@ RUN echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME} \
 RUN  su ${NME} -c "abuild-keygen -a -i -n"
 RUN echo "PACKAGER=\"${FULL} <${EMAIL}>\"" >> /etc/abuild.conf \
 && echo 'MAINTAINER="$PACKAGER"' >> /etc/abuild.conf \
-&& sed "s/ERROR_CLEANUP.*/ERROR_CLEANUP=\"bldroot\"/" -i /etc/abuild.conf
+&& sed "s/ERROR_CLEANUP.*/ERROR_CLEANUP=\"\"/" -i /etc/abuild.conf \
+&& sed "s/^REPODEST.*/REPODEST=\"\/tmp\/packages\"/" -i /etc/abuild.conf
 
-FROM build-base as build-ust
-
+##
+FROM buildbase AS buildust
 ENV NME builder
 
 COPY just-build.sh /usr/local/bin/
@@ -34,12 +35,12 @@ RUN apk update
 USER ${NME}
 RUN just-build.sh
 
-FROM build-base as build-tools
-
+##
+FROM buildbase AS buildtools
 ENV NME builder
 
 COPY just-build.sh /usr/local/bin/
-COPY --from=build-ust /tmp/packages/* /tmp/packages/
+COPY --from=buildust /tmp/packages/* /tmp/packages/
 RUN ls -lah /tmp/packages
 
 RUN echo /tmp/packages >> /etc/apk/repositories

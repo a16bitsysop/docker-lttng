@@ -13,8 +13,9 @@ depends_dev="kmod-dev libxml2-dev lttng-ust-dev popt-dev userspace-rcu-dev
 makedepends="$depends_dev autoconf automake bash coreutils grep libtool"
 checkdepends="util-linux"
 subpackages="$pkgname-dbg $pkgname-static $pkgname-dev $pkgname-doc"
+options="!check"
 source="https://lttng.org/files/lttng-tools/lttng-tools-$pkgver.tar.bz2
-    unistd.patch
+	unistd.patch
 	test.patch
 	"
 

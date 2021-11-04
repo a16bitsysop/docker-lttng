@@ -14,19 +14,14 @@ echo "Arch is: $(uname -m)"
 cd /tmp
 abuild checksum
 abuild -A
-abuild -r
+abuild -rK
 
-APKS=$(find /home/"$NME"/packages -name APKINDEX.tar.gz | wc -l)
+APKS=$(find /tmp/packages -name APKINDEX.tar.gz | wc -l)
 if [ "$APKS" -lt 1 ]
 then
   echo "no apks built, exiting"
   exit 1
 fi
-
-echo "Copying Packages"
-cd /tmp || exit 1
-mkdir -p packages/"$(uname -m)"
-cp -a /home/"$NME"/packages/* packages/"$(uname -m)"
 
 find ./ -type d ! -path "./.*" ! -iname ".*" -execdir echo {} \; \
 -execdir ls -lah {} \;
