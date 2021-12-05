@@ -65,7 +65,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/s390x
+          platforms: linux/x86_64
+          # linux/s390x
           push: true
           tags: |
             ${{ steps.docklabel.outputs.repo }}:${{ steps.docklabel.outputs.timestamp }}
