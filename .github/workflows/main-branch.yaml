@@ -35,11 +35,6 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       -
-        name: Experimental
-        run: |
-          mkdir -p ~/.docker
-          echo $'{"experimental": true}' > ~/.docker/daemon.json
-      -
         name: Inspect builder
         run: |
           echo "Name:      ${{ steps.buildx.outputs.name }}"
@@ -72,5 +67,5 @@ jobs:
           tags: |
             ${{ steps.docklabel.outputs.repo }}:${{ steps.docklabel.outputs.timestamp }}
             ${{ steps.docklabel.outputs.repo }}
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
