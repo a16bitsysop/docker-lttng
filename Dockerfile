@@ -1,52 +1,62 @@
-FROM alpine:edge AS buildbase
+ARG DVER=edge
+ARG NME=builder
 
-ENV NME builder
-ENV FULL "builder builder"
-ENV EMAIL "build@build"
+##################################################################################################
+FROM alpine:${DVER} AS buildbase
+ARG NME
 
-RUN apk add --no-cache -u alpine-conf alpine-sdk pax-utils atools git sudo gdb findutils
+# install abuild deps and add /tmp/packages to repositories
+RUN apk add --no-cache -u alpine-conf alpine-sdk atools findutils gdb git pax-utils sudo \
+&&  echo /tmp/pkg >> /etc/apk/repositories
 
 # setup build user
-RUN adduser -D ${NME} && addgroup ${NME} abuild && addgroup ${NME} tty \
-&& mkdir /home/${NME}/packages && chown ${NME}:${NME} /home/${NME}/packages \
-&& mkdir -p /var/cache/distfiles \
-&& chgrp abuild /var/cache/distfiles \
-&& chmod g+w /var/cache/distfiles
+RUN adduser -D ${NME} && addgroup ${NME} abuild \
+&&  echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME} \
+&&  echo "${NME} ALL=NOPASSWD : ALL" >> /etc/sudoers.d/${NME} \
+&&  sed "s/ERROR_CLEANUP.*/ERROR_CLEANUP=\"\"/" -i /etc/abuild.conf
 
-RUN echo "Defaults  lecture=\"never\"" > /etc/sudoers.d/${NME} \
-&& echo "${NME} ALL=NOPASSWD : ALL" >> /etc/sudoers.d/${NME}
-
-RUN  su ${NME} -c "abuild-keygen -a -i -n"
-RUN echo "PACKAGER=\"${FULL} <${EMAIL}>\"" >> /etc/abuild.conf \
-&& echo 'MAINTAINER="$PACKAGER"' >> /etc/abuild.conf \
-&& sed "s/ERROR_CLEANUP.*/ERROR_CLEANUP=\"\"/" -i /etc/abuild.conf
-
-##
-FROM buildbase AS buildust
-ENV NME builder
-
-COPY just-build.sh /usr/local/bin/
-
-WORKDIR /tmp
-COPY --chown=${NME}:${NME} lttng-ust ./
-
-RUN apk update
+# create keys and copy to global folder, switch to build user
+RUN su ${NME} -c "abuild-keygen -a -i -n"
 USER ${NME}
-RUN just-build.sh
 
-##
-FROM buildbase AS buildtools
-ENV NME builder
+##################################################################################################
+FROM buildbase AS builddep
+ARG NME
+ENV APORT=lttng-ust
+ENV REPO=main
 
-COPY just-build.sh /usr/local/bin/
-COPY --from=buildust /tmp/packages/* /tmp/packages/
-RUN ls -lah /tmp/packages
+# pull source on host with
+# pull-apk-source.sh main/lttng-ust
 
-RUN echo /tmp/packages >> /etc/apk/repositories
+# copy aport folder into container
+WORKDIR /tmp/${APORT}
+COPY ${APORT} ./
+RUN sudo chown -R ${NME}:${NME} ../${APORT}
 
-WORKDIR /tmp
-COPY --chown=${NME}:${NME} lttng-tools ./
+RUN pwd && ls -RC
+RUN abuild checksum
+RUN sudo apk update && abuild deps
+RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
 
-RUN apk update
-USER ${NME}
-RUN just-build.sh
+##################################################################################################
+FROM buildbase AS buildaport
+ARG NME
+ENV APORT=lttng-tools
+ENV REPO=community
+
+# copy built packages from previous step
+COPY --from=builddep /tmp/pkg/* /tmp/pkg/
+RUN ls -RC /tmp/pkg
+
+# pull source on host with
+# pull-apk-source.sh community/lttng-tools
+
+# copy aport folder into container
+WORKDIR /tmp/${APORT}
+COPY ${APORT} ./
+RUN sudo chown -R ${NME}:${NME} ../${APORT}
+
+RUN pwd && ls -RC
+RUN abuild checksum
+RUN sudo apk update && abuild deps
+RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
