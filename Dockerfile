@@ -5,6 +5,8 @@ ARG NME=builder
 FROM alpine:${DVER} AS buildbase
 ARG NME
 
+RUN apk update
+RUN apk upgrade --no-cache
 # install abuild deps and add /tmp/packages to repositories
 RUN apk add --no-cache -u alpine-conf alpine-sdk atools findutils gdb git pax-utils sudo \
 &&  echo /tmp/pkg >> /etc/apk/repositories
@@ -17,8 +19,6 @@ RUN adduser -D ${NME} && addgroup ${NME} abuild \
 
 # create keys and copy to global folder, switch to build user
 RUN su ${NME} -c "abuild-keygen -a -i -n"
-RUN apk update
-RUN apk upgrade
 USER ${NME}
 
 ##################################################################################################
