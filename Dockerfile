@@ -35,7 +35,8 @@ RUN sudo chown -R ${NME}:${NME} ../${APORT}
 
 RUN pwd && ls -RC
 RUN abuild checksum
-RUN sudo apk update && abuild deps
+RUN sudo apk update && apk upgrade --availiable
+RUN abuild deps
 RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
 
 ##################################################################################################
@@ -58,5 +59,6 @@ RUN sudo chown -R ${NME}:${NME} ../${APORT}
 
 RUN pwd && ls -RC
 RUN abuild checksum
-RUN sudo apk update && abuild deps
+RUN sudo apk update && apk upgrade --availiable
+RUN abuild deps
 RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
