@@ -19,6 +19,7 @@ RUN adduser -D ${NME} && addgroup ${NME} abuild \
 # create keys and copy to global folder, switch to build user
 RUN su ${NME} -c "abuild-keygen -a -i -n"
 USER ${NME}
+WORKDIR /tmp/pkg
 
 ##################################################################################################
 FROM buildbase AS builddep
