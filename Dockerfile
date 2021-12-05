@@ -1,4 +1,4 @@
-ARG DVER=edge
+ARG DVER=3.15
 ARG NME=builder
 
 ##################################################################################################
@@ -6,7 +6,7 @@ FROM alpine:${DVER} AS buildbase
 ARG NME
 
 RUN apk update
-# install abuild deps and add /tmp/packages to repositories
+# install abuild deps and add /tmp/pkg to repositories
 RUN apk add --no-cache -u alpine-conf alpine-sdk atools findutils gdb git pax-utils sudo \
 &&  echo /tmp/pkg >> /etc/apk/repositories
 
