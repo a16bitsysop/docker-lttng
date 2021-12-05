@@ -65,8 +65,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/x86_64
-          # linux/s390x
+          platforms: linux/s390x
           push: true
           tags: |
             ghcr.io/${{ steps.docklabel.outputs.repo }}:${{ steps.docklabel.outputs.timestamp }}
