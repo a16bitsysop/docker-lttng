@@ -6,7 +6,6 @@ FROM alpine:${DVER} AS buildbase
 ARG NME
 
 RUN apk update
-RUN apk upgrade
 # install abuild deps and add /tmp/packages to repositories
 RUN apk add --no-cache -u alpine-conf alpine-sdk atools findutils gdb git pax-utils sudo \
 &&  echo /tmp/pkg >> /etc/apk/repositories
