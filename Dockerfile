@@ -17,6 +17,8 @@ RUN adduser -D ${NME} && addgroup ${NME} abuild \
 
 # create keys and copy to global folder, switch to build user
 RUN su ${NME} -c "abuild-keygen -a -i -n"
+RUN apk update
+RUN apk upgrade
 USER ${NME}
 
 ##################################################################################################
@@ -35,7 +37,6 @@ RUN sudo chown -R ${NME}:${NME} ../${APORT}
 
 RUN pwd && ls -RC
 RUN abuild checksum
-RUN sudo apk update && apk upgrade --availiable
 RUN abuild deps
 RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
 
@@ -59,6 +60,5 @@ RUN sudo chown -R ${NME}:${NME} ../${APORT}
 
 RUN pwd && ls -RC
 RUN abuild checksum
-RUN sudo apk update && apk upgrade --availiable
 RUN abuild deps
 RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
