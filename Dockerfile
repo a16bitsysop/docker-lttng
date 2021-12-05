@@ -62,3 +62,4 @@ RUN pwd && ls -RC
 RUN abuild checksum
 RUN abuild deps
 RUN echo "Arch is: $(abuild -A)" && abuild -K -P /tmp/pkg
+RUN echo && echo "Finished Build"
