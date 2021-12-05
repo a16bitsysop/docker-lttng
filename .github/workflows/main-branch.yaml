@@ -32,11 +32,16 @@ jobs:
         name: Checkout
         uses: actions/checkout@v2
       -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+      -
+        name: Docker label info
+        id: docklabel
+        run: |
+          echo "::set-output name=ref::$GITHUB_REF_NAME"
+          echo "::set-output name=sha::$GITHUB_SHA"
+          echo "::set-output name=repo::$GITHUB_REPOSITORY"
+          echo "::set-output name=timestamp::$(date '+%Y%m%d_%H%M%S')"
       -
         name: Available Platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
@@ -47,9 +52,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - 
-        name: Get Timestamp
-        run: echo "timestamp=$(date '+%Y%m%d_%H%M%S')" >> $GITHUB_ENV
       -
         name: Build and push
         uses: docker/build-push-action@v2
@@ -58,5 +60,7 @@ jobs:
           platforms: linux/s390x
           push: true
           tags: |
-            ghcr.io/a16bitsysop/docker-lttng:${{env.timestamp}}
-            ghcr.io/a16bitsysop/docker-lttng:latest
+            ${{ steps.docklabel.outputs.repo }}:${{ steps.docklabel.outputs.timestamp }}
+            ${{ steps.docklabel.outputs.repo }}
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
