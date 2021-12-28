@@ -1,0 +1,10 @@
+--- a/tests/unit/test_unix_socket.c
++++ b/tests/unit/test_unix_socket.c
+@@ -19,6 +19,7 @@
+ #include <stdio.h>
+ #include <pthread.h>
+ #include <unistd.h>
++#include <sys/types.h>
+ #include <sys/wait.h>
+ #include <stdlib.h>
+ 

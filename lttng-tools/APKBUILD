@@ -1,7 +1,7 @@
 # Contributor: Michael Jeanson <mjeanson@efficios.com>
 # Maintainer: Michael Jeanson <mjeanson@efficios.com>
 pkgname=lttng-tools
-pkgver=2.13.1
+pkgver=2.13.0
 pkgrel=0
 pkgdesc="LTTng 2.0 control and utility programs"
 url="https://lttng.org"
@@ -12,23 +12,25 @@ depends_dev="kmod-dev libxml2-dev lttng-ust-dev popt-dev userspace-rcu-dev
 	util-linux-dev"
 makedepends="$depends_dev autoconf automake bash coreutils grep libtool"
 checkdepends="util-linux"
-subpackages="$pkgname-dbg $pkgname-static $pkgname-dev $pkgname-doc"
+subpackages="$pkgname-static $pkgname-dev $pkgname-doc"
 options="!check"
 source="https://lttng.org/files/lttng-tools/lttng-tools-$pkgver.tar.bz2
 	unistd.patch
 	test.patch
+	s390x-tests.patch.noauto
 	"
 
 prepare() {
-    default_prepare
-    autoreconf -fi
+	default_prepare
+	# patch out failing test for s390x, upstream investigating
+#	case "$CARCH" in
+#		s390x) patch -p1 -i "$srcdir"/s390x-tests.patch.noauto
+#	esac
+	# We patch Makefile.am
+	autoreconf -fi
 }
-
 build() {
 	unset LDFLAGS
-	CFLAGS="$CFLAGS -O0 -g"
-	CXXFLAGS="$CXXFLAGS -O0 -g"
-	# We patch Makefile.am
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -39,9 +41,8 @@ build() {
 }
 
 check() {
-	# only run ubnit tests. all tests takes too much time
-#	make -j1 -C tests/unit check
-	./tests/unit/test_event_rule
+	# only run unit tests. all tests takes too much time
+	make -j1 -C tests/unit check
 }
 
 package() {
@@ -51,4 +52,9 @@ package() {
 		"$pkgdir"/usr/share/licenses/$pkgname/
 }
 
-sha512sums="489468a5dd01356fc7da8cc0d5788976f1009faf8d26ac3915100e341f5fe91e697c32ef2ce61a6ff88aad604d2fcfc2ce0f574dc5d2327852e69c00dcdb1313 lttng-tools-2.13.1.tar.bz2"
+sha512sums="
+bcd824b21a6e186caba7d0cfa472b173681995c4c9680ab03d2f33c21f9e003c0ae22cea14f65e9f240ed48e3a679f940b8634a72fc5120fc2a5f47b067b6f07  lttng-tools-2.13.0.tar.bz2
+d5304e621700d208cf27fc798296e14499a4bee1a610ad10275904a3b8852cfe46fd4a92972279e7874b430d9014cbe5b2cb67cb5c1f24bd292ede8c724f2f78  unistd.patch
+1f4d0591b55955a698fe9767c8ce2676a25abdd6e2fb2d7addea8e23cf332c32631ca3d86bb2d1b0239cad972eb649418284ff12f36993373a15a9578dc52401  test.patch
+d1e8d1d6f9abfb165acb181772b3eaf3f6e3caed5a7088e24b40a17eac6109bc92e485f77a2fc65c15f16e482a7d650d5f25c04b58073df47feb84e1855d650a  s390x-tests.patch.noauto
+"
